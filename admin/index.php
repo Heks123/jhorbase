@@ -1,362 +1,663 @@
-<html>
-<?php 
+<?php
+    session_start();
 
-include_once "../dbconnect.php"; 
+    include __DIR__ . "/../config/db_connect.php"; 
 
-session_start();
-$s_user_id = $_SESSION['users_info_id'];
+    $a_user_id = $_SESSION['l_info_id'];
 
-if($_SESSION['users_user_type'] != 'A'){
-    header("location:index.php");
-    exit;
-}
+    if($_SESSION['l_user_type'] != 'A'){
+        header("location:index.php");
+        exit;
+    }
 
-if(isset($_GET['logout'])){
-    session_destroy();
-    header("location: ../login.php"); //login page or visitor page hmmm?
-    die();
-}
-
-//echo "welcome admin";
-?>  
+    if(isset($_GET['logout'])){
+        session_destroy();
+        header("location: ../login.php");
+        die();
+    }
+    
+    if (!isset($_GET['page'])) {
+        header("location: index.php?page=memberSubscriptions");
+        exit;
+    }
+?>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../css/bootstrap.css"> 
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitLife - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="../style/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <title>Admin</title>
+    <link rel="stylesheet" href="../css/bootstrap.css"> 
 </head>
 <body>
-    <div class="border-top-0" style="background-color: green">
-            <div class="logout-admin">
-                <a href="?logout" class="btn btn-link" style="text-decoration: none; color: white; font-size: large; margin-left: 155vh;">
-                    <i class="fa fa-sign-out-alt" style="margin-right: 8px; padding-bottom: 3vh; "></i> Log out
-                </a>
+
+    <!--========================= Sidebar Navigation ============================== -->
+        <aside class="sidebar">
+            <div class="logo">
+                <i class="fas fa-dumbbell"></i><h1>FitLife</h1>
             </div>
-            <a href="#"  style="text-decoration: none; color: white; float: left; margin-left: 85vh; "> ADMIN PAGE</a><br>
-            <a href="?manageproducts" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Manage Products</a>
-            <a href="?manageorder" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Manage Orders</a>
-            <a href="?dashboard" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Dashboards</a>
-            <a href="?registered_users" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Customer Info</a>
-    </div>
+            <nav class="main-nav">
+                <div class="nav-section">
+                    <h3>Administrator</h3>
+                    <ul>
 
-<!--============================ M A N A G E - P R O D U C T S ================================-->
+                        <li class="<?= $currentPage === 'memberSubscriptions' ? 'active' : '' ?>">
+                            <a href="?page=memberSubscriptions"><i class="fas fa-users"></i> Member Subscriptions</a>
+                        </li>
+                        <li class="<?= $currentPage === 'fitness_trainers' ? 'active' : '' ?>">
+                            <a href="?page=fitness_trainers"><i class="fas fa-dumbbell"></i>Fitness Trainers</a>
+                        </li>
+                        <li class="<?= $currentPage === 'payments' ? 'active' : '' ?>">
+                            <a href="?page=payments"><i class="fas fa-credit-card"></i> Payments & Billing</a>
+                        </li>
+                        <li class="<?= $currentPage === 'subsplan' ? 'active' : '' ?>">
+                            <a href="?page=subsplan"><i class="fas fa-dumbbell"></i> Subscription Plans</a>
+                        </li>
+                        <li>
+                            <a href="?logout=true"><i class="fas fa-sign-out-alt"></i> Logout</a>
+                        </li>
 
-<?php
- if(isset($_GET['manageproducts'])) { ?>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-4 bg-success text-light">
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+
+
+                    <!--========================= Page starts here ============================== -->
+
+
+    <?php if(isset($_GET['page'])){ 
+
+
+//=========================================== page - memberSubscriptions ============================================  
+
+        if($_GET['page'] == 'memberSubscriptions'){ ?>
+
+            <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <h2>Member Subscriptions</h2>
+                <div class="user-actions">
+                    <div class="search-box">
+                        <i class="fas fa-search"></i>
+                        <input type="text" placeholder="Search members...">
+                    </div>
+                    <button class="btn primary"><i class="fas fa-plus"></i> Add Member</button>
+                </div>
+            </header>
+
+        <!-- Subscription Status Tabs -->
+            <div class="status-tabs">
+                <button class="tab active">Active (42)</button>
+                <button class="tab">Expired (8)</button>
+                <button class="tab">Pending (5)</button>
+            </div>
+
+        <!-- Member Subscriptions Table -->
+            <div class="card">
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Date Joined</th>
+                                <th>Member Name</th>
+                                <th>Subscription Plan</th>
+                                <th>Status</th>
+                                <th>Next Payment</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Sep 5, 2025</td>
+                                <td>
+                                    <div class="member-info">
+                                        <div class="avatar">JS</div>
+                                        <div>
+                                            <div class="name">John Santos</div>
+                                            <div class="email">john.s@example.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <span class="plan-tag premium">
+                                        <i class="fas fa-crown"></i> Monthly - Gym + Zumba
+                                    </span>
+                                </td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>
+                                    <div class="payment-due">
+                                        <div>Oct 5, 2025</div>
+                                        <div class="days-remaining">(3 days remaining)</div>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="action-buttons">
+                                        <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                                    </div>
+                                </td>
+                            </tr>
+                            <!-- Additional rows would go here -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="table-footer">
+                    <div class="showing-text">Showing 10 out of 15 subscriptions</div>
+                    <div class="pagination">
+                        <button class="btn-icon"><i class="fas fa-chevron-left"></i></button>
+                        <button class="page-btn active">1</button>
+                        <button class="page-btn">2</button>
+                        <button class="page-btn">3</button>
+                        <button class="btn-icon"><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Upcoming Renewals Section -->
+            <div class="card">
+                <div class="card-header">
+                    <h3><i class="far fa-calendar-alt"></i> Upcoming Renewals</h3>
+                    <button class="btn secondary small">View Calendar</button>
+                </div>
+                <div class="table-responsive">
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Member</th>
+                                <th>Plan</th>
+                                <th>Status</th>
+                                <th>Renewal Date</th>
+                                <th>Time Remaining</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>
+                                    <div class="member-info">
+                                        <div class="avatar">SJ</div>
+                                        <div>
+                                            <div class="name">Satin Johnson</div>
+                                            <div class="email">satin.j@example.com</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>Monthly - Gym + Zumba</td>
+                                <td><span class="status-badge active">Active</span></td>
+                                <td>Oct 5, 2025</td>
+                                <td><span class="time-remaining warning">3 days</span></td>
+                                <td>
+                                    <button class="btn-icon"><i class="fas fa-ellipsis-v"></i></button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+                    <!-- Quick Add Section -->
+                    <div class="card quick-add">
+                        <h3><i class="fas fa-user-plus"></i> Add New Membership</h3>
+                        <div class="add-options">
+                            <button class="option-card">
+                                <i class="fas fa-user"></i>
+                                <span>Individual</span>
+                            </button>
+                            <button class="option-card">
+                                <i class="fas fa-users"></i>
+                                <span>Family Plan</span>
+                            </button>
+                            <button class="option-card">
+                                <i class="fas fa-briefcase"></i>
+                                <span>Corporate</span>
+                            </button>
+                        </div>
+                    </div>
+                </main>
+            </div>
+        </body>
+        </html>
+
+        <?php 
+            } //end of memberships page 
+
+
+//=========================================== page - Fitness Trainers ==================================================  
+
+
+    if($_GET['page'] == 'fitness_trainers'){ ?>
+
+
+        <div class="form-container">     
                 <?php
-                    /*Deactivate Product Status*/
-                    if(isset($_GET['deactivate_product'])){
-                        $pdt_id =$_GET['deactivate_product'];
+                /*Deactivate Fitness Team*/
+                        if(isset($_GET['deactivate_fm'])){
+                            $trainer_id =$_GET['deactivate_fm'];
 
-                        $sql_deactivate_product = "UPDATE products
-                                                        SET `pdt_status`='I'
-                                                   WHERE `pdt_id`='$pdt_id';";
+                            $sql_deactivate_fm = "UPDATE `fitness_trainers`
+                                                            SET `trainer_status`='I'
+                                                    WHERE `trainer_id`='$trainer_id';";
 
-                        mysqli_query($conn, $sql_deactivate_product);
-                    }
+                            mysqli_query($conn, $sql_deactivate_fm);
+                        }
 
-                    /*Activate Status*/        
-                    if(isset($_GET['activate_product'])){
-                       $pdt_id = $_GET['activate_product'];
+                /*Activate Fitness Team*/        
+                        if(isset($_GET['activate_fm'])){
+                            $trainer_id = $_GET['activate_fm'];
 
-                       $sql_activate_product = "UPDATE products
-                                                    SET `pdt_status`='A'
-                                                WHERE `pdt_id`='$pdt_id';";
+                            $sql_activate_fm= "UPDATE `fitness_trainers`
+                                                    SET `trainer_status`='A'
+                                                WHERE `trainer_id`='$trainer_id';";
 
-                        mysqli_query($conn,$sql_activate_product);
-                    }
+                            mysqli_query($conn,$sql_activate_fm);
+                        }
+                // Delete Fitness Team
+                        if(isset($_GET['delete_fm'])){
+                            $trainer_id = $_GET['delete_fm'];
 
-                    /*Update Product*/
-                    if(isset($_GET['update_product'])){
-                        $pdt_id = $_GET['update_product'];
-                        
-                        $sql_get_product_info = "SELECT * FROM products
-                                                    WHERE pdt_id = '$pdt_id'";
-                        $result = mysqli_query($conn, $sql_get_product_info);
-                        $data_row = mysqli_fetch_assoc($result);
-                ?>
-                <h3 class="display-6">Update Product Info</h3>
-                   <form action="process_update_product.php" method="POST">>
+                            $sql_delete_fm = "DELETE FROM `fitness_trainers` 
+                                                        WHERE `trainer_id`='$trainer_id';";
+                            mysqli_query($conn, $sql_delete_fm);
+                        }  
+                /*Update Fitness Team*/
+                        if(isset($_GET['update_fm'])){
+                            $trainer_id = $_GET['update_fm'];
+                            
+                            $sql_get_fm = "SELECT * FROM `fitness_trainers`
+                                                        WHERE `trainer_id`='$trainer_id'";
+                            $result = mysqli_query($conn, $sql_get_fm);
+                            $data_row = mysqli_fetch_assoc($result);
+                        ?>
+
+                                    <!-- ==============Update Fitness Member form ================-->
+                                    <form action="update_fitness_trainer.php" method="POST" class="fitness_trainer-form" id="UpdateFitMem-form">
+                                        <div class="UpdateFitMem">
+                                            <h2>Update Fitness Trainer</h2>
+                                            <div id="message-container-fitness" class="message-container-fitness"></div>
+                                        </div>
+
+                                        <input type="hidden" name="fmu_trainer_id" value="<?php echo $data_row['trainer_id']; ?>">
+
+                                        <div class="form-group"> 
+                                            <label for="fmu_trainer_fullname">Full Name</label>
+                                            <input value="<?php echo $data_row['trainer_fullname']; ?>" type="text" name="fmu_trainer_fullname" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="fmu_trainer_spzn">Specialization:</label>
+                                            <input value="<?php echo $data_row['trainer_specialization']; ?>" type="text" name="fmu_trainer_spzn" required>
+                                        </div>
+                                        <div class="form-group">
+                                            <label for="fmu_trainer_spzn">Contact Number:</label>
+                                            <input value="<?php echo $data_row['trainer_contact_number']; ?>" 
+                                                type="text" 
+                                                name="fmu_trainer_contact_no"
+                                                maxlength="11" 
+                                                pattern="\d{11}" 
+                                                title="Please enter exactly 11 digits" 
+                                                required 
+                                                oninput="this.value = this.value.replace(/[^0-9]/g, '');"> 
+                                        </div>
+                                        <button type="submit" class="btn-save">Update Fitness Member</button>
+                                    </form>
+                            
+                    <?php } ?>
+
+
+
+                <!--============= Add Fitness Trainer form===============-->
+                    <form action="new_fitness_trainer.php" method="POST" class="fitness_trainer-form" id="AddNewFitMem-form">
+                        <div class="addNewFitMem"> 
+                            <h2>Add New Fitness Member</h2>
+                            <div id="message-container-fitness" class="message-container-fitness"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="fmn_trainer_fullname">Trainer Name:</label>
+                            <input type="text" name="fmn_trainer_fullname" id="fmn_trainer_fullname" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fmn_trainer_spzn">Specialization:</label>
+                            <input type="text" name="fmn_trainer_spzn" id="fmn_trainer_spzn" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="fmn_trainer_contact_no">Contact Number:</label>
+                            <input type="text" 
+                                name="fmn_trainer_contact_no" 
+                                id="fmn_trainer_contact_no" 
+                                maxlength="11" 
+                                pattern="\d{11}" 
+                                title="Please enter exactly 11 digits" 
+                                required 
+                                oninput="this.value = this.value.replace(/[^0-9]/g, '');">
+                        </div>
+                        <div class="form-group">
+                            <label for="fmn_trainer_prof_img">Trainer Profile Photo</label>
+                            <input type="file" name="fmn_trainer_prof_img" id="fmn_trainer_prof_img" required>
+                        </div>
+                    <button type="submit" class="btn-save">Add New Fitness Member</button>
+
+
+                
+                            <!--====--======Active Fitness Member =====----======-->
+                                <div class="subscription-plans">  <!-- check css of this "subscription-plans" --> 
+                                    <div class="plan-table">
+                                        <h3>Active Fitness Members</h3>
+                                        <?php
+                                            $sql_get_active_trainer_stat = "SELECT * FROM `fitness_trainers` WHERE `trainer_status`='A' ORDER BY trainer_id ASC";
+                                            $get_resultA = mysqli_query($conn, $sql_get_active_trainer_stat);
+                                        ?>
+                                        <table class="table">
+                                            <!-- Table Header with Column Titles -->
+                                            <thead>
+                                                <tr>
+                                                    <th>Profile Image</th>
+                                                    <th>Full Name</th>
+                                                    <th>Specialization</th>
+                                                    <th>Contact Number</th>   
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php while ($row = mysqli_fetch_assoc($get_resultA)) { ?>
+                                                    <tr>
+                                                        <td><img src="../img/<?php echo $row['trainer_profile_image'];?>" alt="" class="img-fluid" width="50px"> </td>
+                                                        <td><?php echo $row['trainer_fullname']; ?></td>
+                                                        <td><?php echo $row['trainer_specialization']; ?></td>
+                                                        <td><?php echo $row['trainer_contact_number']; ?></td>
+                                                        <td>
+                                                            <a href="../admin/index.php?page=fitness_trainers&update_fm=<?php echo $row['trainer_id']; ?>" class="btn btn-success">Update</a>
+                                                            <a href="../admin/index.php?page=fitness_trainers&deactivate_fm=<?php echo $row['trainer_id']; ?>" class="btn btn-danger">Deactivate</a>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+
+                            <!--============Inactive Fitness Member============-->
+                                    <div class="plan-table">
+                                        <h3>Inactive Fitness Members</h3>
+                                        <?php
+                                            $sql_get_inactive_trainer_stat = "SELECT * FROM `fitness_trainers` WHERE `trainer_status`='I' ORDER BY trainer_id ASC";
+                                            $get_resultI = mysqli_query($conn, $sql_get_inactive_trainer_stat);
+                                        ?>
+                                        <table class="table">
+                                            <!-- Table Header with Column Titles -->
+                                            <thead>
+                                                <tr>
+                                                    <th>Profile Image</th>
+                                                    <th>Full Name</th>
+                                                    <th>Specialization</th>
+                                                    <th>Contact Number</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php while ($row = mysqli_fetch_assoc($get_resultI)) { ?>
+                                                    <tr>
+                                                        <td><img src="../img/<?php echo $row['trainer_profile_image'];?>" alt="" class="img-fluid" width="50px"> </td>
+                                                        <td><?php echo $row['trainer_fullname']; ?></td>
+                                                        <td><?php echo $row['trainer_specialization']; ?></td>
+                                                        <td><?php echo $row['trainer_contact_number']; ?></td>
+                                                        <td>
+                                                            <a href="../admin/index.php?page=fitness_trainers&update_fm=<?php echo $row['trainer_id']; ?>" class="btn btn-success">Update</a>
+                                                            <a href="../admin/index.php?page=fitness_trainers&activate_fm=<?php echo $row['trainer_id']; ?>" class="btn btn-info">Activate</a>
+                                                            <a href="../admin/index.php?page=fitness_trainers&delete_fm=<?php echo $row['trainer_id']; ?>" class="btn btn-danger">Delete</a>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> <!-- end of subscription_plans -->
+        </div> <!--end form-container-->
+
+
+
+       <?php
+       } //end of fitness team page
+       
+          
+       
+
+
+
+
+
+//=========================================== page - subscription plans ======================================================  
+
+
+    if($_GET['page'] == 'subsplan'){ ?>
+
+
+    <div class="form-container">     
+                <?php
+                /*Deactivate Subscription Plan Status*/
+                        if(isset($_GET['deactivate_plan'])){
+                            $plan_id =$_GET['deactivate_plan'];
+
+                            $sql_deactivate_plan = "UPDATE `subscription_plans`
+                                                            SET `plan_status`='I'
+                                                    WHERE `plan_id`='$plan_id';";
+
+                            mysqli_query($conn, $sql_deactivate_plan);
+                        }
+
+                /*Activate Subscription Plan Status*/        
+                        if(isset($_GET['activate_plan'])){
+                        $plan_id = $_GET['activate_plan'];
+
+                        $sql_activate_plan= "UPDATE `subscription_plans`
+                                                        SET `plan_status`='A'
+                                                    WHERE `plan_id`='$plan_id';";
+
+                            mysqli_query($conn,$sql_activate_plan);
+                        }
+                // Delete Subscription Plan
+                        if(isset($_GET['delete_plan'])){
+                            $plan_id = $_GET['delete_plan'];
+
+                            $sql_delete_plan = "DELETE FROM `subscription_plans` 
+                                                        WHERE `plan_id`='$plan_id';";
+                            mysqli_query($conn, $sql_delete_plan);
+                        }  
+                /*Update Subscription Plan*/
+                        if(isset($_GET['update_plan'])){
+                            $plan_id = $_GET['update_plan'];
+                            
+                            $sql_get_plan_info = "SELECT * FROM `subscription_plans`
+                                                        WHERE `plan_id`='$plan_id'";
+                            $result = mysqli_query($conn, $sql_get_plan_info);
+                            $data_row = mysqli_fetch_assoc($result);
+            ?>
+                <!--========= Update subscription form ================-->
+                        <form action="update_subs_plan.php" method="POST" class="subscription-form" id="UpdateSubsPlan-subscription-form">
+                            <div class="UpdateSubsPlan">
+                                <h2>Update Subscription Plan</h2>
+                                <div id="message-container-subscription" class="message-container-subscription"></div>
+                            </div>
+                            <input type="hidden" name="u_plan_id" value="<?php echo $data_row['plan_id']; ?>">
+                            <div class="form-group"> 
+                                <label for="">Subscription Name</label>
+                                <input value="<?php echo $data_row['plan_name']; ?>" type="text" name="u_plan_name" required>
+                            </div>
+                            <div class="form-group">
+                                <label for="u_plan_type">Subscription Type:</label>
+                                <select name="u_plan_type" id="u_plan_type" required>
+                                    <option value="monthly" <?php if($data_row['plan_type'] == 'monthly') echo 'selected'; ?>>Monthly</option>
+                                    <option value="yearly" <?php if($data_row['plan_type'] == 'yearly') echo 'selected'; ?>>Yearly</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="u_plan_tier">Tier:</label>
+                                <select name="u_plan_tier" id="u_plan_tier" required>
+                                    <option value="standard" <?php if($data_row['plan_tier'] == 'standard') echo 'selected'; ?>>Standard</option>
+                                    <option value="premium" <?php if($data_row['plan_tier'] == 'premium') echo 'selected'; ?>>Premium</option>
+                                </select>
+                            </div>
+                            <div class="form-group"> 
+                                <label for="">Price (₱)</label>
+                                <input value="<?php echo $data_row['plan_price']; ?>" type="number" name="u_plan_price" step="0.01" required>
+                            </div>
+                            <div class="form-group"> 
+                                
+                            <label for="">Duration (days)</label>
+                                <input value="<?php echo $data_row['plan_duration_days']; ?>" type="number" name="u_plan_duration_days" required>
+                            </div>
+                            <div class="form-group"> 
+                                <label for="u_plan_desc">Description</label>
+                                <textarea name="u_plan_desc" id="u_plan_desc" rows="4" required><?php echo htmlspecialchars($data_row['plan_desc']); ?></textarea>
+                            </div>
+                            <button type="submit" class="btn-save">Update Subscription Plan</button>
+                        </form>
+                    <?php } ?>
+
+                <!--============= Add New Subscription form===============-->
+                    <form action="new_subs_plan.php" method="POST" class="subscription-form" id="AddNewSubsPlan-subscription-form">
+                        <div class="addNewSubsPlan">
+                            <h2>Add New Subscription Plan</h2>
+                            <div id="message-container-subscription" class="message-container-subscription"></div>
+                        </div>
+                        <div class="form-group">
+                            <label for="n_plan_name">Subscription Name:</label>
+                            <input type="text" name="n_plan_name" id="n_plan_name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n_plan_type">Subscription Type:</label>
+                            <select name="n_plan_type" id="n_plan_type" required>
+                                <option value="monthly">Monthly</option>
+                                <option value="yearly">Yearly</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="n_plan_tier">Tier:</label>
+                            <select name="n_plan_tier" id="n_plan_tier" required>
+                                <option value="Standard">Standard</option>
+                                <option value="Premium">Premium</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="n_plan_price">Price (₱):</label>
+                            <input type="number" name="n_plan_price" id="n_plan_price" step="0.01" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n_plan_duration_days">Duration (in days):</label>
+                            <input type="number" name="n_plan_duration_days" id="n_plan_duration_days" min="1" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="n_plan_desc">Description:</label>
+                            <textarea name="n_plan_desc" id="n_plan_desc" rows="4" placeholder="Type here" required></textarea>
+                        </div>
+                        <button type="submit" class="btn-save">Save Subscription Plan</button>
+                    </form>
+
+
                     
-                        <label for="">Product Id</label>
-                        <input value="<?php echo $data_row['pdt_id'];?>" type="text" name="u_pdt_id" readonly class="form-control mb-3">
-                        
-                        <label for="">Product Name</label>
-                        <input value="<?php echo $data_row['pdt_name'];?>" type="text" name="u_pdt_name" class="form-control mb-3">
+                    
 
-                        <label for="">Product Description</label>
-                        <input value="<?php echo $data_row['pdt_description'];?>"  type="text" name="u_pdt_description" class="form-control mb-3">
+                            <!--==========Active Subscription Plans===========-->
+                                <div class="subscription-plans">
+                                    <!-- Active Subscription Plans -->
+                                    <div class="plan-table">
+                                        <h3>Active Subscription Plans</h3>
+                                        <?php
+                                            $sql_get_sub_plans = "SELECT * FROM `subscription_plans` WHERE `plan_status`='A' ORDER BY plan_id ASC";
+                                            $get_result = mysqli_query($conn, $sql_get_sub_plans);
+                                        ?>
+                                        <table class="table">
+                                            <!-- Table Header with Column Titles -->
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Tier</th>
+                                                    <th>Price(₱)</th>
+                                                    <th>Days</th>
+                                                    <th>Type</th>
+                                                    <th>Description</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php while ($row = mysqli_fetch_assoc($get_result)) { ?>
+                                                    <tr>
+                                                        <td><?php echo $row['plan_name']; ?></td>
+                                                        <td><?php echo $row['plan_tier']; ?></td>
+                                                        <td><?php echo "₱" . number_format($row['plan_price'], 2); ?></td>
+                                                        <td><?php echo $row['plan_duration_days']; ?></td>
+                                                        <td><?php echo $row['plan_type']; ?></td>
+                                                        <td><?php echo $row['plan_desc']; ?></td>
+                                                        <td>
+                                                            <a href="../admin/index.php?page=subsplan&update_plan=<?php echo $row['plan_id']; ?>" class="btn btn-success">Update</a>
+                                                            <a href="../admin/index.php?page=subsplan&deactivate_plan=<?php echo $row['plan_id']; ?>" class="btn btn-danger">Deactivate</a>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
 
-                        <label for="">Product Price</label>
-                        <input value="<?php echo $data_row['pdt_price'];?>"  type="text" name="u_pdt_price" class="form-control mb-3">
+                                    <!--============Inactive Subscription Plans============-->
+                                    <div class="plan-table">
+                                        <h3>Inactive Subscription Plans</h3>
+                                        <?php
+                                            $sql_get_sub_plans2 = "SELECT * FROM `subscription_plans` WHERE `plan_status`='I' ORDER BY plan_id ASC";
+                                            $get_result2 = mysqli_query($conn, $sql_get_sub_plans2);
+                                        ?>
+                                        <table class="table">
+                                            <!-- Table Header with Column Titles -->
+                                            <thead>
+                                                <tr>
+                                                    <th>Name</th>
+                                                    <th>Tier</th>
+                                                    <th>Price(₱)</th>
+                                                    <th>Days</th>
+                                                    <th>Type</th>
+                                                    <th>Description</th>
+                                                    <th>Actions</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                <?php while ($row = mysqli_fetch_assoc($get_result2)) { ?>
+                                                    <tr>
+                                                        <td><?php echo $row['plan_name']; ?></td>
+                                                        <td><?php echo $row['plan_tier']; ?></td>
+                                                        <td><?php echo "₱" . number_format($row['plan_price'], 2); ?></td>
+                                                        <td><?php echo $row['plan_duration_days']; ?></td>
+                                                        <td><?php echo $row['plan_type']; ?></td>
+                                                        <td><?php echo $row['plan_desc']; ?></td>
+                                                        <td>
+                                                            <a href="../admin/index.php?page=subsplan&update_plan=<?php echo $row['plan_id']; ?>" class="btn btn-success">Update</a>
+                                                            <a href="../admin/index.php?page=subsplan&activate_plan=<?php echo $row['plan_id']; ?>" class="btn btn-info">Activate</a>
+                                                            <a href="../admin/index.php?page=subsplan&delete_plan=<?php echo $row['plan_id']; ?>" class="btn btn-danger">Delete</a>
+                                                        </td>
+                                                    </tr>
+                                                <?php } ?>
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                </div> <!--end subscription-->
+        </div> <!--end form-container-->
 
-                        <input type="submit" class="btn btn-primary">
-                   </form>
-                <?php
-                }
-                ?>
-            <!--Add New Product--> 
+        <?php 
+        } //end of subscriptionPage
+        ?>
 
-             <hr>
-              <h3 class="display-6">Add New Product</h3>
-              
-                  <?php 
-                      if(isset($_GET['insert_status'])){
-                          echo "<div class='alert alert-warning'>";
-                              if($_GET['insert_status'] == '1') {
-                                  echo "Product Added Successfully.";
-                              }
-                              else{
-                                  echo "There was an error.";
-                              }
-                          echo "</div>";
-                      }
-                ?>
 
-               <form action="process_new_product.php" method="POST" enctype="multipart/form-data">
-                  <label for="">Product Name</label>
-                   <input type="text" name="n_pdt_name" class="form-control mb-3">
-                  
-                  <label for="">Product Description</label>
-                   <input type="text" name="n_pdt_description" class="form-control mb-3">
-                  
-                  <label for="">Product Price</label>
-                   <input type="text" name="n_pdt_price" class="form-control mb-3">
 
-                  <label for="">Product Image</label>
-                      <input type="file" class="form-control mb-3" name="n_pdt_img">
-                  
-                  <input type="submit" class="btn btn-primary">
-               </form>
-        </div>
 
-        <!--Update, Deactivate Function-->
-           <div class="col-8">
-               <?php
-                    $sql_get_products = "SELECT * FROM products WHERE `pdt_status`='A' order by pdt_id ASC";
-                    $get_result = mysqli_query($conn, $sql_get_products); 
-               ?>
-               <table class="table">
-                   <?php
-                       while ($row = mysqli_fetch_assoc($get_result) ){ ?>
-                        <tr>
-                            <td><img src="../webpics/<?php echo $row['pdt_img'];?>" alt="" class="img-fluid" width="100px"> </td>
-                            <td><?php echo $row['pdt_status'];?></td>
-                            <td><?php echo $row['pdt_name'];?></td>
-                            <td><?php echo $row['pdt_description'];?></td>
-                            <td><?php echo "Php " . number_format($row['pdt_price'],2);?></td>
-                            <td> <a href="../admin/index.php?manageproducts&update_product=<?php echo $row['pdt_id'];?>" class="btn btn-success">Update</a> </td>
-                            <td> <a href="../admin/index.php?manageproducts&deactivate_product=<?php echo $row['pdt_id'];?>" class="btn btn-danger">Deactivate</a> </td>
-                        </tr>
-                       <?php 
-                       }
-                   ?>
-                   
-        <!--Update, Activate Function-->
-               <?php
-                    $sql_get_products2 = "SELECT * FROM products WHERE `pdt_status`='I' order by pdt_id ASC";
-                    $get_result2 = mysqli_query($conn, $sql_get_products2); 
-               ?>
-               <table class="table">
-                   <?php
-                       while ($row = mysqli_fetch_assoc($get_result2) ){ ?>
-                        <tr>
-                            <td><img src="../webpics/<?php echo $row['pdt_img'];?>" alt="" class="img-fluid" width="100px"> </td>
-                            <td><?php echo $row['pdt_status'];?></td>
-                            <td><?php echo $row['pdt_name'];?></td>
-                            <td><?php echo $row['pdt_description'];?></td>
-                            <td><?php echo "Php " . number_format($row['pdt_price'],2);?></td>
-                            <td> <a href="../admin/index.php?manageproducts&update_product=<?php echo $row['pdt_id'];?>" class="btn btn-success">Update</a> </td>
-                            <td> <a href="../admin/index.php?manageproducts&activate_product=<?php echo $row['pdt_id'];?>" class="btn btn-info">Activate</a> </td>
-                        </tr>
-                       <?php 
-                       }
-                   ?>
-               </table>    
-           </div>
-        </div>
-    </div>
-    <?php
-    }
+
+
+
+
+
+
+
+    <?php 
+        } //end of page
     ?>
 
-
-<!--============================== M A N A G E - O R D E R S ==================================-->
-
-<?php if(isset($_GET['manageorder'])) { ?>
-    <div class="row">
-        <div class="col-12">
-        <h3 class="display-3" style="text-align: center;">Orders</h3>
-              <a href="?manageorder&order_phases=2" class="btn btn-link" style="text-decoration: none;color: black; font-size: large; margin-left: 75vh;">New</a>
-              <a href="?manageorder&order_phases=3" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Pending</a>
-              <a href="?manageorder&order_phases=4" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">To Ship</a>
-              <a href="?manageorder&order_phases=5" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Delivered</a>
-              <a href="?manageorder&order_phases=0" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Cancelled</a>
-        </div>
-
-        <div class="container-fluid">
-            <?php if(isset($_GET['order_phases'])){ 
-              $order_phases = $_GET['order_phases'];
-              ?>
-             <div class="row">
-              <?php
-                 $sql_get_user_order = "SELECT DISTINCT 
-                                                  o.order_ref_no
-                                                , date(o.orders_date_added) as orders_date_added
-                                                , pm.payment_method_desc
-                                                , o.payment_method
-                                                , op.order_phase_admin
-                                                , o.order_phase_status
-                                                , ui.fullname
-                                                , ui.address
-                                                , o.gcash_ref_no
-                                                , o.gcash_account_name
-                                                , o.gcash_account_no
-                                                , o.gcash_amount_sent
-                                             FROM orders as o
-                                             JOIN payment_method as pm
-                                               ON o.payment_method = pm.payment_method_id
-                                             JOIN order_phase_status as op
-                                               ON o.order_phase_status = op.order_phase_id
-                                             JOIN users as ui
-                                               ON o.user_id = ui.user_id
-                                            WHERE ui.user_type = 'C'
-                                              AND ui.user_status = 'A'
-                                              AND o.order_phase_status = '$order_phases'
-                                            ORDER BY o.orders_date_added ASC";    
-
-                    $sql_result_orders = mysqli_query($conn, $sql_get_user_order);
-              
-              while($ro = mysqli_fetch_assoc($sql_result_orders)){ //first loop for the order reference number ?> 
-                      <div class="col-3">
-                          <div class="card p-3">
-                                <div class="float-end">
-                                                    <span class="badge rounded-pill text-bg-primary"><?php echo $ro['payment_method_desc'];?></span>
-                                                    <span class="badge rounded-pill 
-                                                        <?php 
-                                                                 switch($ro['order_phase_status']){
-                                                                     case 0: echo "text-bg-danger";
-                                                                         break;
-                                                                     case 2: echo "text-bg-primary";
-                                                                         break;
-                                                                     case 3: echo "text-bg-info";
-                                                                         break;
-                                                                     case 4: echo "text-bg-warning";
-                                                                         break;
-                                                                     case 5: echo "text-bg-success";
-                                                                         break;
-                                                                     default: echo "text-bg-secondary";
-                                                                 }
-                                                                 ?> "><?php echo $ro['order_phase_admin'];?></span>
-                                                   <?php if($ro['order_phase_status'] == '2') { ?>
-                                                     <a href="process_cancel_order.php?cancel_order=<?php echo $ro['order_ref_no']; ?>" class="btn btn-danger btn-sm me-1"> x </a>
-                                                   <?php } ?>
-                                                    </div>
-                                                    
-                              <p class="card-title">
-                                  <small><i><?php echo $ro['orders_date_added'];?></i></small> <br>
-                                  <b><?php echo $ro['order_ref_no'];?></b> <br>
-                                  
-                                  
-                                  <small>Recipient: <?php echo strtoupper($ro['fullname']);?></small> <br>
-                                  <small>Address: <?php echo strtoupper($ro['address']);?></small> 
-                              </p>
-                              
-                              <?php
-                             if($ro['payment_method'] == '2' && $ro['order_phase_status'] == '2'){  ?>
-                                 <div class="card-caption p-2">
-                                     <small class="small">Gcash Reference Number: <?php echo $ro['gcash_ref_no'];?></small> <br>
-                                     <small class="small">Gcash Account Name: <?php echo $ro['gcash_account_name'];?></small> <br>
-                                     <small class="small">Gcash Account Number: <?php echo $ro['gcash_account_no'];?></small> <br>
-                                     <small class="small">Gcash Amount Sent: <?php echo "Php " . $ro['gcash_amount_sent'];?></small>
-                                 </div>
-                             <?php }
-                             ?>
-                              
-                              <?php  
-                              $curr_order_ref_no = "";
-                              $curr_order_ref_no = $ro['order_ref_no'];
-                                //walang pang lumalabas
-                                                              
-                                                              
-                              $sql_get_order_products = "SELECT p.pdt_name
-                                                              , p.pdt_img
-                                                              , p.pdt_price
-                                                              , o.pdt_qty
-                                                            FROM orders as o
-                                                            JOIN products as p
-                                                            ON o.pdt_id = p.pdt_id
-                                                            WHERE o.order_ref_no = '$curr_order_ref_no'";
-
-                              $sql_product_orders_result = mysqli_query($conn, $sql_get_order_products);
-                                                          
-                              ?>
-                              <ul class="list-group">
-                                  <?php 
-                                    $total_amt = 0.00;
-                                    $shipping_fee = 50.00;
-                                    $total_amt_with_shipping = 0.00;
-
-                                    while ($pdt_ord = mysqli_fetch_assoc($sql_product_orders_result)){ 
-                                  
-                                  //inner 2nd loop to list all the items of the specified order reference number ?>
-                                      
-                                  <li class="list-group-item"><?php echo $pdt_ord['pdt_name'] . " x " . $pdt_ord['pdt_qty'] . " = <br><small>" . "Php " . number_format($pdt_ord['pdt_qty'] * $pdt_ord['pdt_price'], 2) . "</small>"; ?></li>
-                                  
-                                <?php
-                                    $total_amt += $pdt_ord['pdt_qty'] * $pdt_ord['pdt_price']; 
-                                    $total_amt_with_shipping = $total_amt + 50.00; 
-                                    } ?>
-                                
-                                <li class="list-group-item">
-                                    <small class="d-block float-end">Amount: <?php echo "Php " . number_format($total_amt, 2);?></small>
-                                    <small class="d-block float-end">+shipping: <?php echo "Php ". number_format($shipping_fee,2);?></small>
-                                </li>
-                                <li class="list-group-item bg-secondary text-light">
-                                     <?php echo "Php " . number_format($total_amt_with_shipping, 2);?>
-                                </li>
-                             
-                                 <?php if($_GET['order_phases'] == '2') { ?>
-                                  <li class="list-group-item">
-                                      <a href="process_administer_orders.php?confirm_order=<?php echo $curr_order_ref_no; ?>" class="btn btn-success">Confirm</a>
-                                  </li>
-                                  <?php } ?>
-                                  
-                                 <?php if($_GET['order_phases'] == '3') { ?>
-                                 <li class="list-group-item">
-                                      <a href="process_administer_orders.php?ship_order=<?php echo $curr_order_ref_no; ?>" class="btn btn-primary">Ship</a>
-                                  </li>
-                                  <?php } ?>
-                                 <?php if($_GET['order_phases'] == '4') { ?>
-                                 <li class="list-group-item">
-                                      <a href="process_administer_orders.php?complete_order=<?php echo $curr_order_ref_no; ?>" class="btn btn-primary">Complete</a>
-                                  </li>
-                                  <?php } ?>
-                              </ul>  
-                          </div>
-                      </div>
-              <?php }
-              ?>
-              </div>
-            <?php 
-                }/*order phase*/ 
-            ?>
-         </div> 
-      </div>
-    </div>
-      <?php 
-            } /*manage oder*/
-        ?>
-        <?php if(isset($_GET['dashboard'])){
-                include_once "dashboard.php";
-        }?>
-        <?php if(isset($_GET['registered_users'])){
-                include_once "registered_users.php";
-        }?>
-</body>
     <script src="../js/bootstrap.js"></script>
+    <script src="../js/admin_script.js"></script>
+</body>
 </html>
