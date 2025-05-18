@@ -23,29 +23,36 @@ if(isset($_GET['logout'])){
     <meta charset="UTF-8">
     <link rel="stylesheet" href="../css/bootstrap.css"> 
     <link rel="stylesheet" href="../style/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
     <title>Admin</title>
 </head>
 <body>
-    <div class=border-top-0>
-            <a href="?logout" class="btn btn-link">Log out</a><br>
-            <a href="?manageproducts" class="btn btn-link">Manage Products</a>
-            <a href="?manageorder" class="btn btn-link">Manage Orders</a>
-            <a href="?dashboard" class="btn btn-link">Dashboards</a>
-            <a href="?registered_users" class="btn btn-link">Customer Info</a>
+    <div class="border-top-0" style="background-color: green">
+            <div class="logout-admin">
+                <a href="?logout" class="btn btn-link" style="text-decoration: none; color: white; font-size: large; margin-left: 155vh;">
+                    <i class="fa fa-sign-out-alt" style="margin-right: 8px; padding-bottom: 3vh; "></i> Log out
+                </a>
+            </div>
+            <a href="#"  style="text-decoration: none; color: white; float: left; margin-left: 85vh; "> ADMIN PAGE</a><br>
+            <a href="?manageproducts" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Manage Products</a>
+            <a href="?manageorder" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Manage Orders</a>
+            <a href="?dashboard" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Dashboards</a>
+            <a href="?registered_users" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Customer Info</a>
     </div>
 
 <!--============================ M A N A G E - P R O D U C T S ================================-->
 
 <?php
  if(isset($_GET['manageproducts'])) { ?>
-
-
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-4 bg-success text-light">
                 <?php
                     /*Deactivate Product Status*/
                     if(isset($_GET['deactivate_product'])){
                         $pdt_id =$_GET['deactivate_product'];
 
-                        $sql_deactivate_product = "UPDATE `products`
+                        $sql_deactivate_product = "UPDATE products
                                                         SET `pdt_status`='I'
                                                    WHERE `pdt_id`='$pdt_id';";
 
@@ -56,7 +63,7 @@ if(isset($_GET['logout'])){
                     if(isset($_GET['activate_product'])){
                        $pdt_id = $_GET['activate_product'];
 
-                       $sql_activate_product = "UPDATE `products`
+                       $sql_activate_product = "UPDATE products
                                                     SET `pdt_status`='A'
                                                 WHERE `pdt_id`='$pdt_id';";
 
@@ -67,13 +74,13 @@ if(isset($_GET['logout'])){
                     if(isset($_GET['update_product'])){
                         $pdt_id = $_GET['update_product'];
                         
-                        $sql_get_product_info = "SELECT * FROM `products`
+                        $sql_get_product_info = "SELECT * FROM products
                                                     WHERE pdt_id = '$pdt_id'";
                         $result = mysqli_query($conn, $sql_get_product_info);
                         $data_row = mysqli_fetch_assoc($result);
                 ?>
                 <h3 class="display-6">Update Product Info</h3>
-                   <form action="process_update_product.php" method="POST">
+                   <form action="process_update_product.php" method="POST">>
                     
                         <label for="">Product Id</label>
                         <input value="<?php echo $data_row['pdt_id'];?>" type="text" name="u_pdt_id" readonly class="form-control mb-3">
@@ -93,6 +100,7 @@ if(isset($_GET['logout'])){
                 }
                 ?>
             <!--Add New Product--> 
+
              <hr>
               <h3 class="display-6">Add New Product</h3>
               
@@ -129,7 +137,7 @@ if(isset($_GET['logout'])){
         <!--Update, Deactivate Function-->
            <div class="col-8">
                <?php
-                    $sql_get_products = "SELECT * FROM `products` WHERE `pdt_status`='A' order by pdt_id ASC";
+                    $sql_get_products = "SELECT * FROM products WHERE `pdt_status`='A' order by pdt_id ASC";
                     $get_result = mysqli_query($conn, $sql_get_products); 
                ?>
                <table class="table">
@@ -150,7 +158,7 @@ if(isset($_GET['logout'])){
                    
         <!--Update, Activate Function-->
                <?php
-                    $sql_get_products2 = "SELECT * FROM `products` WHERE `pdt_status`='I' order by pdt_id ASC";
+                    $sql_get_products2 = "SELECT * FROM products WHERE `pdt_status`='I' order by pdt_id ASC";
                     $get_result2 = mysqli_query($conn, $sql_get_products2); 
                ?>
                <table class="table">
@@ -182,12 +190,12 @@ if(isset($_GET['logout'])){
 <?php if(isset($_GET['manageorder'])) { ?>
     <div class="row">
         <div class="col-12">
-              <h3 class="display-3">Orders</h3>
-              <a href="?manageorder&order_phases=2" class="btn btn-link">New</a>
-              <a href="?manageorder&order_phases=3" class="btn btn-link">Pending</a>
-              <a href="?manageorder&order_phases=4" class="btn btn-link">To Ship</a>
-              <a href="?manageorder&order_phases=5" class="btn btn-link">Delivered</a>
-              <a href="?manageorder&order_phases=0" class="btn btn-link">Cancelled</a>
+        <h3 class="display-3" style="text-align: center;">Orders</h3>
+              <a href="?manageorder&order_phases=2" class="btn btn-link" style="text-decoration: none;color: black; font-size: large; margin-left: 75vh;">New</a>
+              <a href="?manageorder&order_phases=3" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Pending</a>
+              <a href="?manageorder&order_phases=4" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">To Ship</a>
+              <a href="?manageorder&order_phases=5" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Delivered</a>
+              <a href="?manageorder&order_phases=0" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Cancelled</a>
         </div>
 
         <div class="container-fluid">
@@ -209,12 +217,12 @@ if(isset($_GET['logout'])){
                                                 , o.gcash_account_name
                                                 , o.gcash_account_no
                                                 , o.gcash_amount_sent
-                                             FROM `orders` as o
-                                             JOIN `payment_method` as pm
+                                             FROM orders as o
+                                             JOIN payment_method as pm
                                                ON o.payment_method = pm.payment_method_id
-                                             JOIN `order_phase_status` as op
+                                             JOIN order_phase_status as op
                                                ON o.order_phase_status = op.order_phase_id
-                                             JOIN `users` as ui
+                                             JOIN users as ui
                                                ON o.user_id = ui.user_id
                                             WHERE ui.user_type = 'C'
                                               AND ui.user_status = 'A'
@@ -272,14 +280,15 @@ if(isset($_GET['logout'])){
                               <?php  
                               $curr_order_ref_no = "";
                               $curr_order_ref_no = $ro['order_ref_no'];
+                                //walang pang lumalabas
                                                               
                                                               
                               $sql_get_order_products = "SELECT p.pdt_name
                                                               , p.pdt_img
                                                               , p.pdt_price
                                                               , o.pdt_qty
-                                                            FROM `orders` as o
-                                                            JOIN `products` as p
+                                                            FROM orders as o
+                                                            JOIN products as p
                                                             ON o.pdt_id = p.pdt_id
                                                             WHERE o.order_ref_no = '$curr_order_ref_no'";
 
@@ -289,6 +298,9 @@ if(isset($_GET['logout'])){
                               <ul class="list-group">
                                   <?php 
                                     $total_amt = 0.00;
+                                    $shipping_fee = 50.00;
+                                    $total_amt_with_shipping = 0.00;
+
                                     while ($pdt_ord = mysqli_fetch_assoc($sql_product_orders_result)){ 
                                   
                                   //inner 2nd loop to list all the items of the specified order reference number ?>
@@ -297,13 +309,16 @@ if(isset($_GET['logout'])){
                                   
                                 <?php
                                     $total_amt += $pdt_ord['pdt_qty'] * $pdt_ord['pdt_price']; 
+                                    $total_amt_with_shipping = $total_amt + 50.00; 
                                     } ?>
                                 
-                                
-                                  <li class="list-group-item bg-secondary text-light">
-                                     <?php echo "Php " . number_format($total_amt, 2);?>
-                                      
-                                  </li>
+                                <li class="list-group-item">
+                                    <small class="d-block float-end">Amount: <?php echo "Php " . number_format($total_amt, 2);?></small>
+                                    <small class="d-block float-end">+shipping: <?php echo "Php ". number_format($shipping_fee,2);?></small>
+                                </li>
+                                <li class="list-group-item bg-secondary text-light">
+                                     <?php echo "Php " . number_format($total_amt_with_shipping, 2);?>
+                                </li>
                              
                                  <?php if($_GET['order_phases'] == '2') { ?>
                                   <li class="list-group-item">

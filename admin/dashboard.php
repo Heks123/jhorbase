@@ -1,362 +1,374 @@
-<html>
 <?php 
-
-include_once "../dbconnect.php"; 
-
-session_start();
-$s_user_id = $_SESSION['users_info_id'];
-
-if($_SESSION['users_user_type'] != 'A'){
-    header("location:index.php");
-    exit;
-}
-
-if(isset($_GET['logout'])){
-    session_destroy();
-    header("location: ../login.php"); //login page or visitor page hmmm?
-    die();
-}
-
-//echo "welcome admin";
-?>  
+include_once "../dbconnect.php";
+?>
+<html>
 <head>
     <meta charset="UTF-8">
-    <link rel="stylesheet" href="../css/bootstrap.css"> 
-    <link rel="stylesheet" href="../style/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-    <title>Admin</title>
+    <title>Document</title>
+    <link rel="stylesheet" href="../css/bootstrap.css">
+    <link rel="stylesheet" href="../style/dashboard.css">
 </head>
 <body>
-    <div class="border-top-0" style="background-color: green">
-            <div class="logout-admin">
-                <a href="?logout" class="btn btn-link" style="text-decoration: none; color: white; font-size: large; margin-left: 155vh;">
-                    <i class="fa fa-sign-out-alt" style="margin-right: 8px; padding-bottom: 3vh; "></i> Log out
-                </a>
-            </div>
-            <a href="#"  style="text-decoration: none; color: white; float: left; margin-left: 85vh; "> ADMIN PAGE</a><br>
-            <a href="?manageproducts" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Manage Products</a>
-            <a href="?manageorder" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Manage Orders</a>
-            <a href="?dashboard" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Dashboards</a>
-            <a href="?registered_users" class="btn btn-link" style="text-decoration: none; color: white; font-size: large;">Customer Info</a>
-    </div>
+<!-- <div class ="border-top-1">Reports</div>  palitan or tanggalin depende sainyo -->
+   <div class="container">
+       <div class="row">
+        <!--==================per product Report===================-->
+           <div class="col-6 ">
 
-<!--============================ M A N A G E - P R O D U C T S ================================-->
-
-<?php
- if(isset($_GET['manageproducts'])) { ?>
-    <div class="container-fluid">
-        <div class="row">
-            <div class="col-4 bg-success text-light">
-                <?php
-                    /*Deactivate Product Status*/
-                    if(isset($_GET['deactivate_product'])){
-                        $pdt_id =$_GET['deactivate_product'];
-
-                        $sql_deactivate_product = "UPDATE products
-                                                        SET `pdt_status`='I'
-                                                   WHERE `pdt_id`='$pdt_id';";
-
-                        mysqli_query($conn, $sql_deactivate_product);
-                    }
-
-                    /*Activate Status*/        
-                    if(isset($_GET['activate_product'])){
-                       $pdt_id = $_GET['activate_product'];
-
-                       $sql_activate_product = "UPDATE products
-                                                    SET `pdt_status`='A'
-                                                WHERE `pdt_id`='$pdt_id';";
-
-                        mysqli_query($conn,$sql_activate_product);
-                    }
-
-                    /*Update Product*/
-                    if(isset($_GET['update_product'])){
-                        $pdt_id = $_GET['update_product'];
-                        
-                        $sql_get_product_info = "SELECT * FROM products
-                                                    WHERE pdt_id = '$pdt_id'";
-                        $result = mysqli_query($conn, $sql_get_product_info);
-                        $data_row = mysqli_fetch_assoc($result);
-                ?>
-                <h3 class="display-6">Update Product Info</h3>
-                   <form action="process_update_product.php" method="POST">>
-                    
-                        <label for="">Product Id</label>
-                        <input value="<?php echo $data_row['pdt_id'];?>" type="text" name="u_pdt_id" readonly class="form-control mb-3">
-                        
-                        <label for="">Product Name</label>
-                        <input value="<?php echo $data_row['pdt_name'];?>" type="text" name="u_pdt_name" class="form-control mb-3">
-
-                        <label for="">Product Description</label>
-                        <input value="<?php echo $data_row['pdt_description'];?>"  type="text" name="u_pdt_description" class="form-control mb-3">
-
-                        <label for="">Product Price</label>
-                        <input value="<?php echo $data_row['pdt_price'];?>"  type="text" name="u_pdt_price" class="form-control mb-3">
-
-                        <input type="submit" class="btn btn-primary">
-                   </form>
-                <?php
-                }
-                ?>
-            <!--Add New Product--> 
-
-             <hr>
-              <h3 class="display-6">Add New Product</h3>
-              
-                  <?php 
-                      if(isset($_GET['insert_status'])){
-                          echo "<div class='alert alert-warning'>";
-                              if($_GET['insert_status'] == '1') {
-                                  echo "Product Added Successfully.";
-                              }
-                              else{
-                                  echo "There was an error.";
-                              }
-                          echo "</div>";
-                      }
-                ?>
-
-               <form action="process_new_product.php" method="POST" enctype="multipart/form-data">
-                  <label for="">Product Name</label>
-                   <input type="text" name="n_pdt_name" class="form-control mb-3">
-                  
-                  <label for="">Product Description</label>
-                   <input type="text" name="n_pdt_description" class="form-control mb-3">
-                  
-                  <label for="">Product Price</label>
-                   <input type="text" name="n_pdt_price" class="form-control mb-3">
-
-                  <label for="">Product Image</label>
-                      <input type="file" class="form-control mb-3" name="n_pdt_img">
-                  
-                  <input type="submit" class="btn btn-primary">
-               </form>
-        </div>
-
-        <!--Update, Deactivate Function-->
-           <div class="col-8">
-               <?php
-                    $sql_get_products = "SELECT * FROM products WHERE `pdt_status`='A' order by pdt_id ASC";
-                    $get_result = mysqli_query($conn, $sql_get_products); 
-               ?>
-               <table class="table">
-                   <?php
-                       while ($row = mysqli_fetch_assoc($get_result) ){ ?>
-                        <tr>
-                            <td><img src="../webpics/<?php echo $row['pdt_img'];?>" alt="" class="img-fluid" width="100px"> </td>
-                            <td><?php echo $row['pdt_status'];?></td>
-                            <td><?php echo $row['pdt_name'];?></td>
-                            <td><?php echo $row['pdt_description'];?></td>
-                            <td><?php echo "Php " . number_format($row['pdt_price'],2);?></td>
-                            <td> <a href="../admin/index.php?manageproducts&update_product=<?php echo $row['pdt_id'];?>" class="btn btn-success">Update</a> </td>
-                            <td> <a href="../admin/index.php?manageproducts&deactivate_product=<?php echo $row['pdt_id'];?>" class="btn btn-danger">Deactivate</a> </td>
-                        </tr>
-                       <?php 
-                       }
-                   ?>
-                   
-        <!--Update, Activate Function-->
-               <?php
-                    $sql_get_products2 = "SELECT * FROM products WHERE `pdt_status`='I' order by pdt_id ASC";
-                    $get_result2 = mysqli_query($conn, $sql_get_products2); 
-               ?>
-               <table class="table">
-                   <?php
-                       while ($row = mysqli_fetch_assoc($get_result2) ){ ?>
-                        <tr>
-                            <td><img src="../webpics/<?php echo $row['pdt_img'];?>" alt="" class="img-fluid" width="100px"> </td>
-                            <td><?php echo $row['pdt_status'];?></td>
-                            <td><?php echo $row['pdt_name'];?></td>
-                            <td><?php echo $row['pdt_description'];?></td>
-                            <td><?php echo "Php " . number_format($row['pdt_price'],2);?></td>
-                            <td> <a href="../admin/index.php?manageproducts&update_product=<?php echo $row['pdt_id'];?>" class="btn btn-success">Update</a> </td>
-                            <td> <a href="../admin/index.php?manageproducts&activate_product=<?php echo $row['pdt_id'];?>" class="btn btn-info">Activate</a> </td>
-                        </tr>
-                       <?php 
-                       }
-                   ?>
-               </table>    
-           </div>
-        </div>
-    </div>
-    <?php
-    }
-    ?>
-
-
-<!--============================== M A N A G E - O R D E R S ==================================-->
-
-<?php if(isset($_GET['manageorder'])) { ?>
-    <div class="row">
-        <div class="col-12">
-        <h3 class="display-3" style="text-align: center;">Orders</h3>
-              <a href="?manageorder&order_phases=2" class="btn btn-link" style="text-decoration: none;color: black; font-size: large; margin-left: 75vh;">New</a>
-              <a href="?manageorder&order_phases=3" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Pending</a>
-              <a href="?manageorder&order_phases=4" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">To Ship</a>
-              <a href="?manageorder&order_phases=5" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Delivered</a>
-              <a href="?manageorder&order_phases=0" class="btn btn-link" style="text-decoration: none;color: black; font-size: large;">Cancelled</a>
-        </div>
-
-        <div class="container-fluid">
-            <?php if(isset($_GET['order_phases'])){ 
-              $order_phases = $_GET['order_phases'];
-              ?>
-             <div class="row">
-              <?php
-                 $sql_get_user_order = "SELECT DISTINCT 
-                                                  o.order_ref_no
-                                                , date(o.orders_date_added) as orders_date_added
-                                                , pm.payment_method_desc
-                                                , o.payment_method
-                                                , op.order_phase_admin
-                                                , o.order_phase_status
-                                                , ui.fullname
-                                                , ui.address
-                                                , o.gcash_ref_no
-                                                , o.gcash_account_name
-                                                , o.gcash_account_no
-                                                , o.gcash_amount_sent
-                                             FROM orders as o
-                                             JOIN payment_method as pm
-                                               ON o.payment_method = pm.payment_method_id
-                                             JOIN order_phase_status as op
-                                               ON o.order_phase_status = op.order_phase_id
-                                             JOIN users as ui
-                                               ON o.user_id = ui.user_id
-                                            WHERE ui.user_type = 'C'
-                                              AND ui.user_status = 'A'
-                                              AND o.order_phase_status = '$order_phases'
-                                            ORDER BY o.orders_date_added ASC";    
-
-                    $sql_result_orders = mysqli_query($conn, $sql_get_user_order);
-              
-              while($ro = mysqli_fetch_assoc($sql_result_orders)){ //first loop for the order reference number ?> 
-                      <div class="col-3">
-                          <div class="card p-3">
-                                <div class="float-end">
-                                                    <span class="badge rounded-pill text-bg-primary"><?php echo $ro['payment_method_desc'];?></span>
-                                                    <span class="badge rounded-pill 
-                                                        <?php 
-                                                                 switch($ro['order_phase_status']){
-                                                                     case 0: echo "text-bg-danger";
-                                                                         break;
-                                                                     case 2: echo "text-bg-primary";
-                                                                         break;
-                                                                     case 3: echo "text-bg-info";
-                                                                         break;
-                                                                     case 4: echo "text-bg-warning";
-                                                                         break;
-                                                                     case 5: echo "text-bg-success";
-                                                                         break;
-                                                                     default: echo "text-bg-secondary";
-                                                                 }
-                                                                 ?> "><?php echo $ro['order_phase_admin'];?></span>
-                                                   <?php if($ro['order_phase_status'] == '2') { ?>
-                                                     <a href="process_cancel_order.php?cancel_order=<?php echo $ro['order_ref_no']; ?>" class="btn btn-danger btn-sm me-1"> x </a>
-                                                   <?php } ?>
-                                                    </div>
-                                                    
-                              <p class="card-title">
-                                  <small><i><?php echo $ro['orders_date_added'];?></i></small> <br>
-                                  <b><?php echo $ro['order_ref_no'];?></b> <br>
-                                  
-                                  
-                                  <small>Recipient: <?php echo strtoupper($ro['fullname']);?></small> <br>
-                                  <small>Address: <?php echo strtoupper($ro['address']);?></small> 
-                              </p>
-                              
-                              <?php
-                             if($ro['payment_method'] == '2' && $ro['order_phase_status'] == '2'){  ?>
-                                 <div class="card-caption p-2">
-                                     <small class="small">Gcash Reference Number: <?php echo $ro['gcash_ref_no'];?></small> <br>
-                                     <small class="small">Gcash Account Name: <?php echo $ro['gcash_account_name'];?></small> <br>
-                                     <small class="small">Gcash Account Number: <?php echo $ro['gcash_account_no'];?></small> <br>
-                                     <small class="small">Gcash Amount Sent: <?php echo "Php " . $ro['gcash_amount_sent'];?></small>
-                                 </div>
-                             <?php }
-                             ?>
-                              
-                              <?php  
-                              $curr_order_ref_no = "";
-                              $curr_order_ref_no = $ro['order_ref_no'];
-                                //walang pang lumalabas
-                                                              
-                                                              
-                              $sql_get_order_products = "SELECT p.pdt_name
-                                                              , p.pdt_img
-                                                              , p.pdt_price
-                                                              , o.pdt_qty
-                                                            FROM orders as o
-                                                            JOIN products as p
-                                                            ON o.pdt_id = p.pdt_id
-                                                            WHERE o.order_ref_no = '$curr_order_ref_no'";
-
-                              $sql_product_orders_result = mysqli_query($conn, $sql_get_order_products);
-                                                          
-                              ?>
-                              <ul class="list-group">
-                                  <?php 
-                                    $total_amt = 0.00;
-                                    $shipping_fee = 50.00;
-                                    $total_amt_with_shipping = 0.00;
-
-                                    while ($pdt_ord = mysqli_fetch_assoc($sql_product_orders_result)){ 
-                                  
-                                  //inner 2nd loop to list all the items of the specified order reference number ?>
-                                      
-                                  <li class="list-group-item"><?php echo $pdt_ord['pdt_name'] . " x " . $pdt_ord['pdt_qty'] . " = <br><small>" . "Php " . number_format($pdt_ord['pdt_qty'] * $pdt_ord['pdt_price'], 2) . "</small>"; ?></li>
-                                  
+                <div class="card ps-1">
+                    <h3 class="title">Per Product</h3>
+                    <div class="bottom-border-line"></div>
+                    <!-- <div class="title">Per Product</div>    -->
+                       <div class="card-body">
+                           <h1 class="display-1">
                                 <?php
-                                    $total_amt += $pdt_ord['pdt_qty'] * $pdt_ord['pdt_price']; 
-                                    $total_amt_with_shipping = $total_amt + 50.00; 
-                                    } ?>
+                                    $sql_get_per_product = "SELECT DISTINCT 
+                                                            p.pdt_name as pdt_name 
+                                                            ,  p.pdt_img as pdt_img   
+                                                            ,  SUM(o.pdt_qty) as total_pdt_qty
+                                                            ,  SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt
+                                                            FROM orders as o
+                                                            JOIN products as p 
+                                                            ON o.pdt_id = p.pdt_id
+                                                            GROUP BY p.pdt_name, p.pdt_img
+                                                            ORDER BY p.pdt_name DESC";
+
+                                    $sql_execute_result = mysqli_query($conn, $sql_get_per_product);?>
+                                    <table class="table table-striped">
+                                        <tr>
+                                            <th></th> <!--for image column-->
+                                            <th>Date</th>
+                                            <th>Total Product Qty</th>
+                                            <th>Total Sales</th>
+                                        </tr>
+                                        <?php 
+                                        $total = 0.00;
+                                        while($rec = mysqli_fetch_assoc($sql_execute_result)){
+                                            $total += $rec['total_amt']; //formula
+                                            ?>
+                                                <tr>
+                                                    <td> <img src="../webpics/<?php echo $rec['pdt_img'];?>" alt="" class="img-fluid" width="25px"> </td>
+                                                    <td><?php echo $rec['pdt_name'];?></td>
+                                                    <td><?php echo $rec['total_pdt_qty'];?></td>
+                                                    <td><?php echo "₱" . number_format($rec['total_amt'],2);?></td>
+                                                </tr>         
+                                    <?php } ?>
+                                                <tr>
+                                                    <td colspan=4 class="bg-light" > 
+                                                        <small class="float-end" ><?php echo "Php " . number_format($total,2);?></small> 
+                                                    </td>
+                                                </tr>
+                                </table> 
+                           </h1>
+                       </div>
+                   </div>
+                </div>
+        <!--==================Per-Day Report===================-->
+           <div class="col-6 ">
+                   <div class="card ps-1">
+                       <h3 class="title">Per Day</h3>
+                    <div class="bottom-border-line"></div>
+                       <div class="card-body">
+                           <h1 class="display-1">
+                           <?php
+                                $sql_get_per_day = " SELECT
+                                                        CAST(o.orders_date_added as DATE) as transaction_date_added
+                                                    , SUM(o.pdt_qty) as total_pdt_qty
+                                                    , SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt
+                                                    FROM 
+                                                        orders as o 
+                                                    JOIN 
+                                                        products p ON o.pdt_id = p.pdt_id
+                                                    GROUP BY 
+                                                        CAST(o.orders_date_added as DATE)
+                                                    ORDER BY 
+                                                        CAST(o.orders_date_added as DATE) DESC;";
+                                $sql_execute_result = mysqli_query($conn, $sql_get_per_day);
+                                ?>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th>Date</th>
+                                        <th>Total Item Qty</th>
+                                        <th>Total Sales</th>
+                                    </tr>
+                                    <?php 
+                                    $total = 0.00;
+                                    while($rec = mysqli_fetch_assoc($sql_execute_result)){
+                                        $total += $rec['total_amt']; 
+                                    ?>
+                                        <tr>
+                                            <td><?php echo $rec['transaction_date_added'];?></td>
+                                            <td><?php echo $rec['total_pdt_qty'];?></td>
+                                            <td><?php echo "₱" . number_format($rec['total_amt'], 2);?></td>
+                                        </tr>          
+                                    <?php } ?>
+                                    <tr>
+                                        <td colspan=3 class="bg-light"> 
+                                            <small class="float-end"><?php echo "₱" . number_format($total, 2);?></small> 
+                                        </td>
+                                    </tr>
+                                </table>
                                 
-                                <li class="list-group-item">
-                                    <small class="d-block float-end">Amount: <?php echo "Php " . number_format($total_amt, 2);?></small>
-                                    <small class="d-block float-end">+shipping: <?php echo "Php ". number_format($shipping_fee,2);?></small>
-                                </li>
-                                <li class="list-group-item bg-secondary text-light">
-                                     <?php echo "Php " . number_format($total_amt_with_shipping, 2);?>
-                                </li>
-                             
-                                 <?php if($_GET['order_phases'] == '2') { ?>
-                                  <li class="list-group-item">
-                                      <a href="process_administer_orders.php?confirm_order=<?php echo $curr_order_ref_no; ?>" class="btn btn-success">Confirm</a>
-                                  </li>
-                                  <?php } ?>
-                                  
-                                 <?php if($_GET['order_phases'] == '3') { ?>
-                                 <li class="list-group-item">
-                                      <a href="process_administer_orders.php?ship_order=<?php echo $curr_order_ref_no; ?>" class="btn btn-primary">Ship</a>
-                                  </li>
-                                  <?php } ?>
-                                 <?php if($_GET['order_phases'] == '4') { ?>
-                                 <li class="list-group-item">
-                                      <a href="process_administer_orders.php?complete_order=<?php echo $curr_order_ref_no; ?>" class="btn btn-primary">Complete</a>
-                                  </li>
-                                  <?php } ?>
-                              </ul>  
-                          </div>
-                      </div>
-              <?php }
-              ?>
-              </div>
-            <?php 
-                }/*order phase*/ 
-            ?>
-         </div> 
-      </div>
+                           </h1>
+                       </div>
+                   </div>
+           </div>
+            <!--==================per order Report===================-->
+           <div class="col-6 ">
+                   <div class="card ps-1">
+                   <h3 class="title">Per Order</h3>
+                    <div class="bottom-border-line"></div> 
+                       <div class="card-body">
+                           <h1 class="display-1">
+                           <?php 
+                                $sql_get_per_order = "SELECT DISTINCT 
+                                                        o.order_ref_no AS order_ref_no
+                                                    , SUM(o.pdt_qty) AS total_pdt_qty
+                                                    , SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt
+                                                    FROM 
+                                                        orders as o 
+                                                    JOIN 
+                                                        products as p 
+                                                    ON 
+                                                        o.pdt_id = p.pdt_id
+                                                    GROUP BY 
+                                                        o.order_ref_no";
+
+                                $sql_execute_result = mysqli_query($conn, $sql_get_per_order);
+                            ?>
+                               
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th>Order Reference Number</th>
+                                        <th>Total Item Qty</th>
+                                        <th>Total Sales</th>
+                                    </tr>
+                                     <?php 
+                                     $total = 0.00;
+                                    while($rec = mysqli_fetch_assoc($sql_execute_result)){
+                                     $total += $rec['total_amt'];
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $rec['order_ref_no'];?></td>
+                                        <td><?php echo $rec['total_pdt_qty'];?></td>
+                                        <td><?php echo "Php " . number_format($rec['total_amt'],2);?></td>
+                                    </tr>       
+                                     <?php } ?>
+                                       <tr>
+                                        <td colspan=3 class="bg-light"> <small class="float-end"><?php echo "₱" . number_format($total,2);?></small> </td>
+                                    </tr>
+                                </table>
+                               
+                           </h1>
+                       </div>
+                   </div>      
+           </div>
+        <!--==================Per-User Report===================-->
+           <div class="col-6 ">
+                   <div class="card ps-1">
+                   <h3 class="title">Per User</h3>
+                    <div class="bottom-border-line"></div> 
+                       <div class="card-body">
+                           <h1 class="display-1">
+                                <?php
+                                $sql_get_per_user = "SELECT DISTINCT *
+                                                        FROM (
+                                                            SELECT 
+                                                                u.fullname AS fullname,
+                                                                u.username AS username,
+                                                                u.email as email,
+                                                                SUM(o.pdt_qty) AS total_pdt_qty,
+                                                                SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt
+                                                            FROM orders o
+                                                            JOIN products p ON o.pdt_id = p.pdt_id
+                                                            JOIN users u ON o.user_id = u.user_id
+                                                            GROUP BY u.fullname, u.username, u.email
+                                                            ORDER BY u.fullname DESC
+                                                        ) AS total_per_user;";
+                                $sql_execute_result = mysqli_query($conn, $sql_get_per_user); ?>
+                                <table class="table table-striped">
+                                    <tr>
+                                        <th>Fullname</th>
+                                        <th>Email</th>
+                                        <th>Username</th>
+                                        <th>Total Product Qty</th>
+                                        <th>Total Sales</th>
+                                    </tr>
+                                     <?php 
+                                    $total=0.00;
+                                    while($rec = mysqli_fetch_assoc($sql_execute_result)){
+                                     $total += $rec['total_amt'];
+                                    ?>
+                                    <tr>
+                                        <td><?php echo $rec['fullname'];?></td>
+                                        <td><?php echo $rec['email'];?></td>
+                                        <td><?php echo $rec['username'];?></td>
+                                        <td><?php echo $rec['total_pdt_qty'];?></td>
+                                        <td><?php echo "Php " . number_format($rec['total_amt'],2);?></td>
+                                    </tr>      
+                                             
+                                         
+                                     <?php } ?>
+                               
+                                    <tr>
+                                        <td colspan=5 class="bg-light">
+                                            <small class="float-end">
+                                                <?php echo "Php " . number_format($total,2);?>
+                                            </small> 
+                                        </td>
+                                    </tr>
+                                </table>
+                               
+                           </h1>
+                       </div>
+                   </div>
+           </div>
+        <!--==================Yesterday vs Today Report===================-->
+        <div class="col-6 ">
+            <div class="card ps-1">
+            <h3 class="title">Yesterday vs Today's Sales</h3>
+                    <div class="bottom-border-line"></div>               
+                    <div class="card-body">
+                            <h1 class="display-1">
+                                <table class="table table-striped">
+                                        <?php
+                        /*sql query for yesterday*/ 
+                                        $yesterday_sql = "SELECT 
+                                                            SUM(o.pdt_qty) AS total_pdt_qty_yesterday,
+                                                            SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt_yesterday
+                                                        FROM 
+                                                            orders AS o
+                                                        JOIN 
+                                                            products p ON o.pdt_id = p.pdt_id
+                                                        WHERE 
+                                                            CAST(o.orders_date_added AS DATE) = DATE_SUB(CURDATE(), INTERVAL 1 DAY)";
+
+                                        $yesterday_result = mysqli_query($conn, $yesterday_sql);
+                                        $yesterday_rec = mysqli_fetch_assoc($yesterday_result); ?>
+                                        <tr>
+                                            <!--column-->
+                                            <th>Yesterday's Date</th>
+                                            <th>Total Item Qty</th>
+                                            <th>Total Sales</th>
+                                        </tr>
+                                        <tr>
+                                            <!--row-->
+                                            <td><?php echo date('Y-m-d', strtotime('-1 day'));?></td>
+                                            <td><?php echo $yesterday_rec['total_pdt_qty_yesterday'];?></td>
+                                            <td><?php echo "₱". number_format($yesterday_rec['total_amt_yesterday'],2);?></td>
+                                        </tr>
+                                        
+                                    <?php
+                        /*sql query for today*/
+                                        $today_sql = "SELECT 
+                                                        SUM(o.pdt_qty) AS total_pdt_qty_today,
+                                                        SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt_today
+                                                    FROM 
+                                                        orders AS o
+                                                    JOIN 
+                                                        products p ON o.pdt_id = p.pdt_id
+                                                    WHERE 
+                                                        CAST(o.orders_date_added AS DATE) = CURDATE()";
+
+                                        $today_result = mysqli_query($conn, $today_sql);
+                                        $today_rec = mysqli_fetch_assoc($today_result);
+                                    ?>
+                                        <tr>
+                                            <!--column-->
+                                            <th>Today's Date</th>
+                                            <th>Total Item Qty</th>
+                                            <th>Total Sales</th>
+                                        </tr>
+                                        <tr>
+                                            <!--row-->
+                                            <td><?php echo date('Y-m-d');?></td>
+                                            <td><?php echo $today_rec['total_pdt_qty_today'];?></td>
+                                            <td><?php echo "₱". number_format($today_rec['total_amt_today'],2);?></td>
+                                        </tr>                 
+                                                    <!--simple if-else statements to compare the results-->
+                                                    <?php 
+                                                    if ($yesterday_rec['total_amt_yesterday'] > $today_rec['total_amt_today']) { ?>
+                                                        <td colspan=3 class="bg-light"> 
+                                                            <small class="float-end"><?php echo "Yesterday's sale was better";?></small> 
+                                                        </td>
+                                                    <?php }
+                                                    else if ($yesterday_rec['total_amt_yesterday'] < $today_rec['total_amt_today']){ ?>
+                                                        <td colspan=3 class="bg-light"> 
+                                                            <small class="float-end"><?php echo "Today's sale was better";?></small> 
+                                                        </td>
+                                                    <?php } 
+                                                    else if(($yesterday_rec['total_amt_yesterday'] == '0' || $today_rec['total_amt_today'] == '0')){ ?>
+                                                        <td colspan=3 class="bg-light"> 
+                                                            <small class="float-end"><?php echo "Today's sale was better";?></small> 
+                                                        </td>
+                                                    <?php }
+                                                    else { ?>
+                                                        <td colspan=3 class="bg-light"> 
+                                                            <small class="float-end"><?php echo "Yesterday's and Today's sales are equal";?></small> 
+                                                        </td>
+                                                    <?php } ?>
+                                </table>
+                            </h1>
+                        </div>
+                    </div>
+                </div>
+        <!--==================Yearly Sales===================-->
+        <div class="col-6 ">
+    <div class="card ps-1">
+                <h3 class="title">Yearly Sales</h3>
+                    <div class="bottom-border-line"></div>                
+            <div class="card-body">
+                <h1 class="display-1">
+                    <table class="table table-striped">
+                        <tr>
+                            <th>Year</th>
+                            <th>Total Product Qty</th>
+                            <th>Total Sales</th>
+                        </tr>
+                        <?php
+                        $sql_get_yearly = "SELECT 
+                                            YEAR(o.orders_date_added) AS date_year,
+                                            SUM(o.pdt_qty) AS total_pdt_qty_year,
+                                            SUM(p.pdt_price * o.pdt_qty + COALESCE(o.shipping_fee, 0)) AS total_amt_yearly
+                                        FROM 
+                                            orders AS o
+                                        JOIN 
+                                            products p ON o.pdt_id = p.pdt_id
+                                        GROUP BY 
+                                            YEAR(o.orders_date_added)
+                                        ORDER BY 
+                                            YEAR(o.orders_date_added) DESC";
+                        $yearly_result = mysqli_query($conn, $sql_get_yearly);
+
+                        $overall_pdt_qty = 0;
+                        $overall_total_amt = 0;
+
+                        while($yearly_rec = mysqli_fetch_assoc($yearly_result)){?>
+                            <tr>
+                                <!--row-->
+                                <td><?php echo $yearly_rec['date_year'];?></td>
+                                <td><?php echo $yearly_rec['total_pdt_qty_year'];?></td>
+                                <td><?php echo "₱". number_format($yearly_rec['total_amt_yearly'],2);?></td>
+                            </tr>
+                        <?php 
+                            $overall_pdt_qty += $yearly_rec['total_pdt_qty_year'];
+                            $overall_total_amt += $yearly_rec['total_amt_yearly'];
+                        ?>
+                        <?php }?>
+                                <td><strong>Overall</strong></td>
+                                <td><strong><?php echo $overall_pdt_qty;?></strong></td>
+                                <td><strong>₱<?php echo number_format($overall_total_amt,2);?></strong></td>
+                            </tr>
+                    </table>
+                </h1>
+            </div>
+        </div>
     </div>
-      <?php 
-            } /*manage oder*/
-        ?>
-        <?php if(isset($_GET['dashboard'])){
-                include_once "dashboard.php";
-        }?>
-        <?php if(isset($_GET['registered_users'])){
-                include_once "registered_users.php";
-        }?>
+
+
+            </div>
+       </div>
+   </div> 
 </body>
-    <script src="../js/bootstrap.js"></script>
+<script src="../js/bootstrap.js"></script>
 </html>
