@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Register - FitLife</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet" />
   <script>
@@ -158,6 +159,7 @@
         <div class="progress-step w-4 h-4 rounded-full bg-gray-300"></div>
         <div class="progress-step w-4 h-4 rounded-full bg-gray-300"></div>
         <div class="progress-step w-4 h-4 rounded-full bg-light"></div>
+        <div class="progress-step w-4 h-4 rounded-full bg-gray-300"></div>
         <div class="progress-step w-4 h-4 rounded-full bg-gray-300"></div>
     </div>
 
