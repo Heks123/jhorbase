@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 include_once "./config/db_connect.php";
 
@@ -23,7 +22,6 @@ $email          = trim($_POST['s_email'] ?? '');
 $age            = intval($_POST['s_age'] ?? 0);
 $height         = floatval($_POST['s_height'] ?? 0);
 $weight         = floatval($_POST['s_weight'] ?? 0);
-$fitness_level  = $_POST['s_fitness_level'] ?? '';
 $goal           = $_POST['s_goal'] ?? '';
 $conditions     = trim($_POST['s_conditions'] ?? '');
 $time_pref      = $_POST['s_time_pref'] ?? '';
@@ -55,8 +53,7 @@ if ($stmt->num_rows > 0) {
     abort("Username already exists.");
 }
 
-// 4) Insert into `users`
-$hashed = password_hash($password, PASSWORD_BCRYPT);
+// 4) Insert into `users` WITHOUT hashing
 $stmt = $conn->prepare("
     INSERT INTO users
       (fullname, username, password, contact_number, address, gender, email)
@@ -64,33 +61,37 @@ $stmt = $conn->prepare("
 ");
 $stmt->bind_param(
     "sssssss",
-    $fullname, $username, $hashed,
-    $contact, $address, $gender, $email
+    $fullname,
+    $username,
+    $password,     // store raw password
+    $contact,
+    $address,
+    $gender,
+    $email
 );
 if (!$stmt->execute()) {
     abort("Failed to create user: " . $stmt->error);
 }
 $new_user_id = $conn->insert_id;
 
-// 5) Insert into `user_profiles`
+// 5) Insert into `user_profiles` (omit time_preference if column not present)
 $stmt = $conn->prepare("
     INSERT INTO user_profiles
-      (user_id, age, height_cm, weight_kg, fitness_goal, activity_level, medical_conditions, time_preference)
-    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      (user_id, age, height_cm, weight_kg, fitness_goal, activity_level, medical_conditions)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
 ");
 $stmt->bind_param(
-    "iddsssss",
+    "iddssss",
     $new_user_id,
-    $age,         // int → i
-    $height,      // double → d
-    $weight,      // double → d
-    $goal,        // string → s
-    $activity_level,
-    $conditions,
-    $time_pref
+    $age,            // i
+    $height,         // d
+    $weight,         // d
+    $goal,           // s
+    $activity_level, // s
+    $conditions      // s
 );
 if (!$stmt->execute()) {
-    // If profile insert fails, you might want to delete the orphan user:
+    // rollback user insert
     $conn->query("DELETE FROM users WHERE user_id = $new_user_id");
     abort("Profile insert failed: " . $stmt->error);
 }
