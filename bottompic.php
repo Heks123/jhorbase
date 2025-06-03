@@ -17,9 +17,7 @@
         <p>Gentlemen's Choice</p>
       </div>   
     </div>
-</div>
-
-      
+</div> 
 </body>
 </html>
 

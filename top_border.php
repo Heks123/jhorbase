@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -11,15 +12,20 @@
     <div class="top-border">
         <div class="dropdown">
             <button class="dropdown-button"><ion-icon name="menu-outline"></ion-icon></button> <!-- Changed icon name to include -outline -->
-            <div class="dropdown-content">
+                <div class="dropdown-content">
+
+                <small style="text-decoration: none; color: white; font-family: 'Montserrat';">
+                    <?php echo $row['fullname']; ?>
+                </small>
+
                 <a href="?page=home" class="btn btn-link" style="text-decoration: none; color: white; font-family: 'Montserrat';">
                     <ion-icon name="home-outline"></ion-icon> Home
                 </a>
                 <a href="?page=cart" class="btn btn-link" style="text-decoration: none; color: white; font-family: 'Montserrat';">
                     <ion-icon name="cart-outline"></ion-icon> Cart
                 </a>
-                <a href="?page=myorder" class="btn btn-link" style="text-decoration: none; color: white; font-family: 'Montserrat';">
-                    <ion-icon name="bag-outline"></ion-icon> My Order
+                <a href="?page=myorders" class="btn btn-link" style="text-decoration: none; color: white; font-family: 'Montserrat';">
+                    <ion-icon name="bag-outline"></ion-icon> My Orders
                 </a>
 
                 <hr class="hr-custom">

@@ -57,7 +57,6 @@
                                     <select class="form-select" name="s_gender" id="" class="form-control"required>
                                     <option value="M">Male</option>
                                     <option value="F">Female</option>
-                                    <option value="X">Rather Not Say</option>
                                         </select>
                                             </div>     
                                         <div class="field">    
